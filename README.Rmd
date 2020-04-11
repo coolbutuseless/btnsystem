@@ -67,7 +67,7 @@ You can install btnsystem from [CRAN](https://github.com/coolbutuseless/btnsyste
 
 ``` r
 # install.packages('remotes')
-devtools::install_github("btnsystem")
+remotes::install_github("coolbutuseless/btnsystem")
 ```
 
 

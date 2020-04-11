@@ -22,7 +22,7 @@ You can install btnsystem from
 
 ``` r
 # install.packages('remotes')
-devtools::install_github("btnsystem")
+remotes::install_github("coolbutuseless/btnsystem")
 ```
 
 ## The problem with built-in `system()` and `system2()`
