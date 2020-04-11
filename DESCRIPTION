@@ -1,0 +1,14 @@
+Package: btnsystem
+Type: Package
+Title: Safety Wrapper for "system2"
+Version: 0.1.0
+Author: mikefc
+Maintainer: mikefc <mikefc@coolbutuseless.com>
+Description: Run commands with system2 with various levels of paranoia against
+    malicious input.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat (>= 2.1.0)
+RoxygenNote: 7.1.0

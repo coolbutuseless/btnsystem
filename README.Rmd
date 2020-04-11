@@ -1,0 +1,139 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+
+```{r echo = FALSE, eval = FALSE}
+# Quick logo generation. Borrowed heavily from Nick Tierney's Syn logo process
+library(magick)
+library(showtext)
+font_add_google("Abril Fatface", "gf")
+```
+
+
+```{r echo = FALSE, eval = FALSE}
+img <- image_read("man/figures/button.png")
+
+
+hexSticker::sticker(subplot  = img,
+                    s_x      = 1,
+                    s_y      = 1.2,
+                    s_width  = 1.5,
+                    s_height = 1.0,
+                    package  = "system",
+                    p_x      = 1,
+                    p_y      = 0.55,
+                    p_color  = "#223344",
+                    p_family = "gf",
+                    p_size   = 8,
+                    h_size   = 1.2,
+                    h_fill   = "#ffffff",
+                    h_color  = "#223344",
+                    filename = "man/figures/logo.png")
+
+image_read("man/figures/logo.png")
+```
+
+
+
+
+# btnsystem   <img src="man/figures/logo.png" align="right" height=230/>
+
+<!-- badges: start -->
+![](http://img.shields.io/badge/cool-useless-green.svg)
+![](http://img.shields.io/badge/button-verse-blue.svg)
+<!-- badges: end -->
+
+
+The goal of btnsystem is to provide a safer and tidier version of system which 
+still allows for some shell features like filename expansion (e.g. with tilde, or '*').
+
+#### Am I on a fool's errand?  Can you break this idea and let me know?
+
+## Installation
+
+You can install btnsystem from [CRAN](https://github.com/coolbutuseless/btnsystem) with:
+
+``` r
+# install.packages('remotes')
+devtools::install_github("btnsystem")
+```
+
+
+## The problem with built-in `system()` and `system2()`
+
+Easy to get built-in `system2()` to execute arbitrary commands even 
+if they only control the `args` and not the `command`.
+
+In the following, the intent was to only run the 'ls' command, but it is 
+trivial to run any other command after this by setting an appropriate argument.
+
+```{r}
+command <- 'ls'
+args    <- c('/tmp/crap.png ; echo "If you see this text, then any arbitrary command could have been run"')
+
+system2(command, args, stdout = TRUE)
+```
+
+
+## Why not `{processx}`?
+
+My current requirement is that filename expansion in the shell can still occur
+i.e. `ls *.md` should list all the md files.  However, because of the way `{processx}`
+executes the command without using the shell, shell expansion never occurs and 
+an the following code would try and list files with a verbatim name of '*.md'
+
+A call using `system2()` expands the filenames, but a call to `processx::run`
+does not.
+
+
+```{r eval = FALSE}
+system2('ls', '*.md')
+processx::run('ls', '*.md', error_on_status = FALSE)
+```
+
+
+
+
+
+## Shake down
+
+Can you cause the following `btnsystem::run()` command to perform something unexpected?
+
+Assume that:
+
+* the user does **not** control the 'command' 
+* the users only input is via 'args'
+
+
+```{r}
+command <- 'figlet'
+args    <- c('-w', '40', 'hello', 'there')
+
+res <- btnsystem::run('figlet', args, timeout = 10)
+cat(res$stdout)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
