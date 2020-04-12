@@ -15,7 +15,7 @@ for some shell features like filename expansion (e.g. with tilde, or
 
 It achieves this by using `shQuote()` on all arguments except those
 which contain a file expansion character (as long as no other special
-characters are present)
+characters are present).
 
 The **btn** in `btnsystem` is pronounced “*button*” and stands for
 “better than nothing”.`btnsystem` is a part of the ButtonVerse.
@@ -25,7 +25,7 @@ The **btn** in `btnsystem` is pronounced “*button*” and stands for
 ## Installation
 
 You can install btnsystem from
-[CRAN](https://github.com/coolbutuseless/btnsystem) with:
+[github](https://github.com/coolbutuseless/btnsystem) with:
 
 ``` r
 # install.packages('remotes')
@@ -35,7 +35,7 @@ remotes::install_github("coolbutuseless/btnsystem")
 ## The problem with built-in `system()` and `system2()`: Multiple commands in a single call
 
 It’s easy to get built-in `system2()` to execute arbitrary commands even
-if a user only controls the `args` for a given comment.
+if a user only controls the `args` for a given call.
 
 In the following, the intent was to only run the ‘ls’ command, but it is
 trivial to run any other command after this by setting an appropriate
@@ -56,10 +56,10 @@ system2(command, args, stdout = TRUE)
 
 `processx` avoids this issue by avoiding the shell altogether and
 executing the command directly via your operating system. This ensures
-that only the one command will be run at any call e..g
+that only the one command will be run at any call.
 
-In the following it can be seen that running the command via processx
-will cause an error because it cannot find the literal file
+In the following it can be seen that running a malicious command via
+processx will cause an error because it cannot find the literal file
 `/tmp/crap.png ; echo "You just got hacked!"`
 
 ``` r
@@ -87,11 +87,12 @@ processx::run(command, args, error_on_status = FALSE)
 
 Since `processx` avoids using the shell altogether it loses out on some
 nice shell features like filename expansion (using `*`, `?` and others)
-and tilde-expansion to access a user’s home directory.
+and tilde-expansion (to access a user’s home directory).
 
-So call using filename expansion with `*` will work correctly in
+So calls using filename expansion with `*` will work correctly in
 `system2()` but fail in `processx::run`. The following calls should both
-detect 2 markdown files.
+detect 2 markdown files. `system2()` works because it uses the shell’s
+filename expansion.
 
 ``` r
 system2('ls', '*.md', stdout = TRUE)
@@ -122,26 +123,27 @@ processx::run('ls', '*.md', error_on_status = FALSE)
 ## `btnsystem` solution
 
 The approach of `btnsystem::run()` is to wrap the built-in `system2()`
-call, and pre-process the arguments to the command:
+call, and pre-process/sanitize the arguments to the command:
 
 1.  If an arg contains a file expansion character (`*`, `?`, `[`) and no
     other special characters, then leave it as-is.
       - If it also contains spaces, then replace them with escaped
-        spaces i.e. `\`
+        spaces, safe for the shell
 2.  All other arguments are wrapped in `shQuote()`
 
 ## `btnsystem` in action
 
 `btnsystem` allows for both shell filename expansion, and protection
-against running multiple commands, while still having special characters
-which everyting wrapped in `shQuote()` to avoid shenanigans.
+against running multiple commands. All arguments with special characters
+are wrapped in `shQuote()` to avoid shenanigans.
+
+#### Filename Expansion
 
 ``` r
-btnsystem::run('ls', '*.md', echo = TRUE)
-```
-
-``` 
-   ls *.md
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Filename expansion
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+btnsystem::run('ls', '*.md')
 ```
 
 ``` 
@@ -158,12 +160,10 @@ btnsystem::run('ls', '*.md', echo = TRUE)
    [1] "ls *.md"
 ```
 
-``` r
-btnsystem::run('ls', '; echo "hacked"', echo = TRUE, error_on_status = FALSE)
-```
+#### Mitigation of malicious code
 
-``` 
-   ls '; echo "hacked"'
+``` r
+btnsystem::run('ls', '; echo "hacked"', error_on_status = FALSE)
 ```
 
 ``` 
@@ -180,15 +180,10 @@ btnsystem::run('ls', '; echo "hacked"', echo = TRUE, error_on_status = FALSE)
    [1] "ls '; echo \"hacked\"'"
 ```
 
-``` r
-res <- btnsystem::run('figlet', 'Stuff & Thing;', echo = TRUE)
-```
-
-``` 
-   figlet 'Stuff & Thing;'
-```
+#### Can still use special characters where desired
 
 ``` r
+res <- btnsystem::run('figlet', 'Stuff & Thing;')
 cat(res$stdout)
 ```
 
