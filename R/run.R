@@ -1,15 +1,15 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Detect special characters in a character vector of args
+#' Detect special characters in a character vector.
 #'
-#' This is implemented as a whitelist of characters to accept. The presence
-#' of anything outside this whitelist is considered a 'special character'
+#' This is implemented as a whitelist of characters to accept.
+#' Anything not in the whitelist is considered a 'special character'.
 #'
-#' @param args character vector of args to check
+#' @param args Character vector of arguments to check.
 #'
-#' @return logical vector to match input 'args' set to TRUE if there are special
-#'         characters in the individual arguments.
+#' @return Logical vector. Elements are set to TRUE if there are special characters
+#'         in the corresponding \code{args} element.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 has_special_chars <- function(args) {
   # special_chars <- "[&;|<>$!]"
@@ -19,12 +19,12 @@ has_special_chars <- function(args) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Detect special characters in a character vector of args
+#' Detect special characters in a character vector.
 #'
-#' @param args character vector of args to check
+#' @param args Character vector of arguments to check.
 #'
-#' @return logical vector to match input 'args' set to TRUE if there are file
-#'         expansion characters in the individual arguments.
+#' @return Logical vector. Elements are set to TRUE if there are file expansion characters
+#'         in the corresponding \code{args} element.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 has_file_expansion <- function(args) {
   expansion_chars <- "[*\\[?]"
@@ -33,28 +33,30 @@ has_file_expansion <- function(args) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Detect plain spaces in the args
+#' Detect plain spaces in a character vector.
 #'
-#' @param args character vector of args to check
+#' This function checks for plain ASCII space characters. It
+#' ignores tab, newline and any other "whitespace" characters.
 #'
-#' @return logical vector to match input 'args' set to TRUE if there are spaces
-#'         in the individual arguments.
+#' @param args Character vector of arguments to check.
+#'
+#' @return >ogical vector. Elements are set to TRUE if there are spaces
+#'         in the corresponding \code{args} element.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 has_spaces <- function(args) {
   grepl(" ", args)
 }
 
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Assert character vector is sane
+#' Assert character vector is sane.
 #'
 #' Zero-length vector allowed. No NAs allowed. Must be fewer than 1000 arguments
-#' and fewer than 200000 characters
+#' and fewer than 200000 characters.
 #'
-#' @param args character vector of args to check
+#' @param args Character vector of arguments to check.
 #'
-#' @return logical TRUE if all test pass, otherwise through an error.
+#' @return Logical value.  TRUE if all tests pass, otherwise throw an error.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 assert_sane_character_vector <- function(args) {
   stopifnot(is.atomic(args))
@@ -69,11 +71,14 @@ assert_sane_character_vector <- function(args) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Escape any spaces in args e.g. in filenames
+#' Escape any plain spaces.
 #'
-#' @param args sane character vector of args. See \code{assert_sane_character_vector()}
+#' Usually only apply this to arguments which represent filenames and contain
+#' filename expansion characters.
 #'
-#' @return character vector with spaces escaped with a backslash.
+#' @param args A sane character vector of arguments. See \code{assert_sane_character_vector()}
+#'
+#' @return Character vector with spaces escaped with a backslash.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 escape_spaces <- function(args) {
   gsub(" ", "\\\\ ", args)
@@ -81,15 +86,15 @@ escape_spaces <- function(args) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Shell quote all arguments except for those which include bash filename expansion
+#' Shell quote all arguments except for those which include bash filename expansion.
 #'
 #' Filename expansion characters are \code{*}, \code{[} and \code{?}.  Regardless
 #' of whether an arg contains file expansion characters or not, if it contains
-#' any non-approved character it will be wrapped shQuote()
+#' any non-approved character it will be wrapped in \code{shQuote()}
 #'
-#' @param args sane character vector of args. See \code{assert_sane_character_vector()}
+#' @param args A sane character vector of arguments. See \code{assert_sane_character_vector()}
 #'
-#' @return Apply shQuote() to all arguments.  Leave args with file expansion unquoted,
+#' @return Apply \code{shQuote()} to all arguments.  Leave args with file expansion unquoted,
 #'         unless they contain special characters
 #'
 #' @export
@@ -110,21 +115,37 @@ prepare_for_shell <- function(args) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Run the given command the supplied arguments. Shell expansion of filenames is still performed.
+#' Run the given command with the supplied arguments.
+#'
+#' This is an alternate interface to the \code{system2()} command with more
+#' safety checks to help mitigate some common security concerns.
+#'
+#' Shell expansion of filenames can still be used.
+#'
+#' This function is heavily modelled on \code{processx::run()}.
 #'
 #' @param command Character scalar, the command to run
-#' @param args character vector, arguments to the command
+#' @param args Character vector, arguments to the command
 #' @param error_on_status Throw an error if the command returns a non-zero status?
 #'        Default: TRUE
-#' @param echo Echo the command to be run. Default: TRUE
-#' @param timeout whole seconds for which to run before interrupting process.
-#'        Default: 0 (no limit)
+#' @param wd Working directory of the command. If NULL (default), the current working
+#'        directory will be used.
+#' @param echo_cmd Echo the command to be run. Default: FALSE
+#' @param timeout Timeout for the command, in seconds.  If it is not finished before this,
+#'        the command will be interupted.  Default: 10.  Use \code{timeout=0} to
+#'        let the command run until completion.
 #'
-#' @return list with 'status', 'stdout', 'stderr'
+#' @return A list with components \itemize{
+#' \item{status}{ - The exit status of the command.}
+#' \item{stdout}{ - The standard output of the command, in a character scalar.}
+#' \item{stderr}{ - The standard error of the command, in a character scalar.}
+#' \item{string}{ - An equivalent string to the command which was executed}
+#' }
 #'
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-run <- function(command, args = NULL, error_on_status = TRUE, echo = FALSE, timeout = 10) {
+run <- function(command, args = NULL, error_on_status = TRUE, wd = NULL,
+                echo_cmd = FALSE, timeout = 10) {
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Tidy up the args. shell quote what we can, let the shell expand filenames
@@ -138,15 +159,27 @@ run <- function(command, args = NULL, error_on_status = TRUE, echo = FALSE, time
   stdout_file <- tempfile()
   stderr_file <- tempfile()
 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Set the working directory if requested
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  if (!is.null(wd)) {
+    start_dir <- getwd()
+    on.exit(setwd(start_dir))
+    setwd(wd)
+  }
 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Echo the command if requested
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   command_string <- paste0(c(command, args), collapse = " ")
-  if (echo) {
+  if (echo_cmd) {
     message(command_string)
   }
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Ignore any R warnings. Focus on shell errors instead
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  status <- NA_integer_
   suppressWarnings({
     status <- system2(command, args, stdout = stdout_file, stderr = stderr_file, timeout = timeout)
   })
@@ -175,22 +208,5 @@ run <- function(command, args = NULL, error_on_status = TRUE, echo = FALSE, time
     string = command_string
   )
 }
-
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The system is assumed to be running on a 'bash' compatible shell
-# The 'figlet' command is the standard 'figlet' command
-# The user only controls 'args'.
-#
-# How can this be easily broken by a malicious user
-#   - who only has access to change 'args'
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if (FALSE) {
-  args <- c('hello *')
-  cat(run('figlet', args, timeout = 10)$stdout)
-}
-
-
 
 

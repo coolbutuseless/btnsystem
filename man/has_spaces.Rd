@@ -2,17 +2,18 @@
 % Please edit documentation in R/run.R
 \name{has_spaces}
 \alias{has_spaces}
-\title{Detect plain spaces in the args}
+\title{Detect plain spaces in a character vector.}
 \usage{
 has_spaces(args)
 }
 \arguments{
-\item{args}{character vector of args to check}
+\item{args}{Character vector of arguments to check.}
 }
 \value{
-logical vector to match input 'args' set to TRUE if there are spaces
-        in the individual arguments.
+>ogical vector. Elements are set to TRUE if there are spaces
+        in the corresponding \code{args} element.
 }
 \description{
-Detect plain spaces in the args
+This function checks for plain ASCII space characters. It
+ignores tab, newline and any other "whitespace" characters.
 }

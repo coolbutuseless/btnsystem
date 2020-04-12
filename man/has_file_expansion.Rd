@@ -2,17 +2,17 @@
 % Please edit documentation in R/run.R
 \name{has_file_expansion}
 \alias{has_file_expansion}
-\title{Detect special characters in a character vector of args}
+\title{Detect special characters in a character vector.}
 \usage{
 has_file_expansion(args)
 }
 \arguments{
-\item{args}{character vector of args to check}
+\item{args}{Character vector of arguments to check.}
 }
 \value{
-logical vector to match input 'args' set to TRUE if there are file
-        expansion characters in the individual arguments.
+Logical vector. Elements are set to TRUE if there are file expansion characters
+        in the corresponding \code{args} element.
 }
 \description{
-Detect special characters in a character vector of args
+Detect special characters in a character vector.
 }

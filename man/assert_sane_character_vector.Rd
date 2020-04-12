@@ -2,17 +2,17 @@
 % Please edit documentation in R/run.R
 \name{assert_sane_character_vector}
 \alias{assert_sane_character_vector}
-\title{Assert character vector is sane}
+\title{Assert character vector is sane.}
 \usage{
 assert_sane_character_vector(args)
 }
 \arguments{
-\item{args}{character vector of args to check}
+\item{args}{Character vector of arguments to check.}
 }
 \value{
-logical TRUE if all test pass, otherwise through an error.
+Logical value.  TRUE if all tests pass, otherwise throw an error.
 }
 \description{
 Zero-length vector allowed. No NAs allowed. Must be fewer than 1000 arguments
-and fewer than 200000 characters
+and fewer than 200000 characters.
 }

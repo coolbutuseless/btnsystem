@@ -2,18 +2,18 @@
 % Please edit documentation in R/run.R
 \name{has_special_chars}
 \alias{has_special_chars}
-\title{Detect special characters in a character vector of args}
+\title{Detect special characters in a character vector.}
 \usage{
 has_special_chars(args)
 }
 \arguments{
-\item{args}{character vector of args to check}
+\item{args}{Character vector of arguments to check.}
 }
 \value{
-logical vector to match input 'args' set to TRUE if there are special
-        characters in the individual arguments.
+Logical vector. Elements are set to TRUE if there are special characters
+        in the corresponding \code{args} element.
 }
 \description{
-This is implemented as a whitelist of characters to accept. The presence
-of anything outside this whitelist is considered a 'special character'
+This is implemented as a whitelist of characters to accept.
+Anything not in the whitelist is considered a 'special character'.
 }

@@ -2,16 +2,17 @@
 % Please edit documentation in R/run.R
 \name{escape_spaces}
 \alias{escape_spaces}
-\title{Escape any spaces in args e.g. in filenames}
+\title{Escape any plain spaces.}
 \usage{
 escape_spaces(args)
 }
 \arguments{
-\item{args}{sane character vector of args. See \code{assert_sane_character_vector()}}
+\item{args}{A sane character vector of arguments. See \code{assert_sane_character_vector()}}
 }
 \value{
-character vector with spaces escaped with a backslash.
+Character vector with spaces escaped with a backslash.
 }
 \description{
-Escape any spaces in args e.g. in filenames
+Usually only apply this to arguments which represent filenames and contain
+filename expansion characters.
 }

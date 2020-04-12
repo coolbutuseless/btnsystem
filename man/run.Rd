@@ -2,26 +2,48 @@
 % Please edit documentation in R/run.R
 \name{run}
 \alias{run}
-\title{Run the given command the supplied arguments. Shell expansion of filenames is still performed.}
+\title{Run the given command with the supplied arguments.}
 \usage{
-run(command, args = NULL, error_on_status = TRUE, echo = FALSE, timeout = 10)
+run(
+  command,
+  args = NULL,
+  error_on_status = TRUE,
+  wd = NULL,
+  echo_cmd = FALSE,
+  timeout = 10
+)
 }
 \arguments{
 \item{command}{Character scalar, the command to run}
 
-\item{args}{character vector, arguments to the command}
+\item{args}{Character vector, arguments to the command}
 
 \item{error_on_status}{Throw an error if the command returns a non-zero status?
 Default: TRUE}
 
-\item{echo}{Echo the command to be run. Default: TRUE}
+\item{wd}{Working directory of the command. If NULL (default), the current working
+directory will be used.}
 
-\item{timeout}{whole seconds for which to run before interrupting process.
-Default: 0 (no limit)}
+\item{echo_cmd}{Echo the command to be run. Default: FALSE}
+
+\item{timeout}{Timeout for the command, in seconds.  If it is not finished before this,
+the command will be interupted.  Default: 10.  Use \code{timeout=0} to
+let the command run until completion.}
 }
 \value{
-list with 'status', 'stdout', 'stderr'
+A list with components \itemize{
+\item{status}{ - The exit status of the command.}
+\item{stdout}{ - The standard output of the command, in a character scalar.}
+\item{stderr}{ - The standard error of the command, in a character scalar.}
+\item{string}{ - An equivalent string to the command which was executed}
+}
 }
 \description{
-Run the given command the supplied arguments. Shell expansion of filenames is still performed.
+This is an alternate interface to the \code{system2()} command with more
+safety checks to help mitigate some common security concerns.
+}
+\details{
+Shell expansion of filenames can still be used.
+
+This function is heavily modelled on \code{processx::run()}.
 }

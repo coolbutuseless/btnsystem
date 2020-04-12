@@ -2,19 +2,19 @@
 % Please edit documentation in R/run.R
 \name{prepare_for_shell}
 \alias{prepare_for_shell}
-\title{Shell quote all arguments except for those which include bash filename expansion}
+\title{Shell quote all arguments except for those which include bash filename expansion.}
 \usage{
 prepare_for_shell(args)
 }
 \arguments{
-\item{args}{sane character vector of args. See \code{assert_sane_character_vector()}}
+\item{args}{A sane character vector of arguments. See \code{assert_sane_character_vector()}}
 }
 \value{
-Apply shQuote() to all arguments.  Leave args with file expansion unquoted,
+Apply \code{shQuote()} to all arguments.  Leave args with file expansion unquoted,
         unless they contain special characters
 }
 \description{
 Filename expansion characters are \code{*}, \code{[} and \code{?}.  Regardless
 of whether an arg contains file expansion characters or not, if it contains
-any non-approved character it will be wrapped shQuote()
+any non-approved character it will be wrapped in \code{shQuote()}
 }

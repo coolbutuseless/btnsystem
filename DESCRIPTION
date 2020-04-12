@@ -1,7 +1,7 @@
 Package: btnsystem
 Type: Package
 Title: Safely Call Command Line Programs
-Version: 0.1.1
+Version: 0.1.2
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
 Description: A wrapper around system2() to mitigate malicious input.
