@@ -8,6 +8,8 @@
 ![](http://img.shields.io/badge/cool-useless-green.svg)
 ![](http://img.shields.io/badge/button-verse-blue.svg) [![Travis build
 status](https://travis-ci.org/coolbutuseless/btnsystem.svg?branch=master)](https://travis-ci.org/coolbutuseless/btnsystem)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/coolbutuseless/btnsystem?branch=master&svg=true)](https://ci.appveyor.com/project/coolbutuseless/btnsystem)
 <!-- badges: end -->
 
 `btnsystem` provides a safer version of `system2()` that still allows

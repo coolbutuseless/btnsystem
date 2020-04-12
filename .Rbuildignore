@@ -6,3 +6,4 @@
 ^\.covrignore$
 ^pkgdown$
 ^\.travis\.yml$
+^appveyor\.yml$
