@@ -13,6 +13,7 @@ test_that("run works", {
   expect_true(grepl("No such file", res$stderr))
 
 
+  skip_on_os(c('windows', 'linux'))
   skip_on_appveyor()
   res <- run('pwd', wd = "/tmp")
   expect_true(grepl("/tmp", res$stdout))
