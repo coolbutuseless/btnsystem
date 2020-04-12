@@ -37,6 +37,11 @@ You can install btnsystem from
 remotes::install_github("coolbutuseless/btnsystem")
 ```
 
+#### ToDo
+
+  - No attempt has been made to support Windows shells, as I don’t have
+    easy access to a machine. Let me know if you can help out\!
+
 ## The problem with built-in `system()` and `system2()`: Multiple commands in a single call
 
 It’s easy to get built-in `system2()` to execute arbitrary commands even
