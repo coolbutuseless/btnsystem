@@ -3,58 +3,67 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Detect special characters in a character vector of args
 #'
+#' This is implemented as a whitelist of characters to accept. The presence
+#' of anything outside this whitelist is considered a 'special character'
+#'
 #' @param args character vector of args to check
 #'
 #' @return logical vector to match input 'args' set to TRUE if there are special
 #'         characters in the individual arguments.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 has_special_chars <- function(args) {
-  match_disallowed <- "[^-=_.,:?*/~a-zA-Z0-9 \\\\[\\]\\{\\}\n\t]"
-  grepl(match_disallowed, args, perl=TRUE)
+  # special_chars <- "[&;|<>$!]"
+  match_not_allowed <- "[^-+=_.,:?*/~a-zA-Z0-9 \\\\[\\]\\{\\}\n\t]"
+  grepl(match_not_allowed, args, perl=TRUE)
 }
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Raise an error if any of the args contain special characters
+#' Detect special characters in a character vector of args
+#'
 #' @param args character vector of args to check
+#'
+#' @return logical vector to match input 'args' set to TRUE if there are file
+#'         expansion characters in the individual arguments.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-assert_no_special_chars <- function(args) {
-  specials <- has_special_chars(args)
-  if (any(specials)) {
-    stop("The following arguments have disallowed special characters: ",
-         deparse(args[specials]))
-  }
-  invisible(TRUE)
+has_file_expansion <- function(args) {
+  expansion_chars <- "[*\\[?]"
+  grepl(expansion_chars, args, perl = TRUE)
 }
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Detect plain spaces in the args
+#'
+#' @param args character vector of args to check
+#'
+#' @return logical vector to match input 'args' set to TRUE if there are spaces
+#'         in the individual arguments.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+has_spaces <- function(args) {
+  grepl(" ", args)
+}
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Assert character vector is sane
 #'
-#' Zero-length vector allowed.
-#' No NAs allowed.
+#' Zero-length vector allowed. No NAs allowed. Must be fewer than 1000 arguments
+#' and fewer than 200000 characters
 #'
 #' @param args character vector of args to check
+#'
+#' @return logical TRUE if all test pass, otherwise through an error.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 assert_sane_character_vector <- function(args) {
-  if (length(args) == 0) {return()}
+  stopifnot(is.atomic(args))
+  if (length(args) == 0) {return(invisible(TRUE))}
   stopifnot(is.character(args))
   stopifnot(length(args) < 1000)
   stopifnot(!anyNA(args))
   lens <- vapply(args, nchar, integer(1))
-  stopifnot(sum(lens) < 20000)
-  invisible(TRUE)
-}
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Check args for sanity
-#'
-#' @param args character vector of args to check
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-check_args <- function(args) {
-  assert_sane_character_vector(args)
-  assert_no_special_chars(args)
+  stopifnot(sum(lens) < 200000)
   invisible(TRUE)
 }
 
@@ -66,26 +75,37 @@ check_args <- function(args) {
 #'
 #' @return character vector with spaces escaped with a backslash.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-escape_spaces_in_args <- function(args) {
-  gsub("\\s", "\\\\ ", args)
+escape_spaces <- function(args) {
+  gsub(" ", "\\\\ ", args)
 }
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Shell quote all arguments except for those which include bash filename expansion
 #'
-#' Filename expansion characters are \code{*}, \code{[} and \code{?}
+#' Filename expansion characters are \code{*}, \code{[} and \code{?}.  Regardless
+#' of whether an arg contains file expansion characters or not, if it contains
+#' any non-approved character it will be wrapped shQuote()
 #'
 #' @param args sane character vector of args. See \code{assert_sane_character_vector()}
 #'
-#' @return Apply shQuote() to all arguments which do not look like they do
-#'         not contain base filename expansion characters
+#' @return Apply shQuote() to all arguments.  Leave args with file expansion unquoted,
+#'         unless they contain special characters
 #'
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-shell_quote <- function(args) {
-  has_file_expansion <- grepl("[*\\[?]", args, perl = TRUE)
-  ifelse(has_file_expansion, args, shQuote(args))
+prepare_for_shell <- function(args) {
+  file_expansions <- has_file_expansion(args)
+  special_chars   <- has_special_chars(args)
+  spaces          <- has_spaces(args)
+
+  quote             <- special_chars | !file_expansions
+  need_space_escape <- !quote
+
+  args <- ifelse(special_chars | !file_expansions, shQuote(args), args)
+  args[need_space_escape] <- escape_spaces(args[need_space_escape])
+
+  args
 }
 
 
@@ -104,14 +124,13 @@ shell_quote <- function(args) {
 #'
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-run <- function(command, args = NULL, error_on_status = TRUE, echo = TRUE, timeout = 10) {
+run <- function(command, args = NULL, error_on_status = TRUE, echo = FALSE, timeout = 10) {
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Tidy up the args. shell quote what we can, let the shell expand filenames
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  check_args(args)
-  args <- escape_spaces_in_args(args)
-  args <- shell_quote(args)
+  assert_sane_character_vector(args)
+  args <- prepare_for_shell(args)
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Location to store the stdout and stderr
@@ -152,7 +171,8 @@ run <- function(command, args = NULL, error_on_status = TRUE, echo = TRUE, timeo
   list(
     status = status,
     stdout = this_stdout,
-    stderr = this_stderr
+    stderr = this_stderr,
+    string = command_string
   )
 }
 
@@ -167,8 +187,8 @@ run <- function(command, args = NULL, error_on_status = TRUE, echo = TRUE, timeo
 #   - who only has access to change 'args'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if (FALSE) {
-  args <- c('hello')
-  run('figlet', args, timeout = 10)
+  args <- c('hello *')
+  cat(run('figlet', args, timeout = 10)$stdout)
 }
 
 

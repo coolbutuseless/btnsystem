@@ -9,7 +9,10 @@ assert_sane_character_vector(args)
 \arguments{
 \item{args}{character vector of args to check}
 }
+\value{
+logical TRUE if all test pass, otherwise through an error.
+}
 \description{
-Zero-length vector allowed.
-No NAs allowed.
+Zero-length vector allowed. No NAs allowed. Must be fewer than 1000 arguments
+and fewer than 200000 characters
 }

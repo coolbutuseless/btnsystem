@@ -1,12 +1,13 @@
 Package: btnsystem
 Type: Package
-Title: Safety Wrapper for "system2"
-Version: 0.1.0
+Title: Safely Call Command Line Programs
+Version: 0.1.1
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
-Description: Run commands with system2 with various levels of paranoia against
-    malicious input.
+Description: A wrapper around system2() to mitigate malicious input.
 License: MIT + file LICENSE
+URL: https://github.com/coolbutuseless/btnsystem
+BugReports: https://github.com/coolbutuseless/btnsystem/issues
 Encoding: UTF-8
 LazyData: true
 Suggests: 

@@ -14,5 +14,6 @@ logical vector to match input 'args' set to TRUE if there are special
         characters in the individual arguments.
 }
 \description{
-Detect special characters in a character vector of args
+This is implemented as a whitelist of characters to accept. The presence
+of anything outside this whitelist is considered a 'special character'
 }

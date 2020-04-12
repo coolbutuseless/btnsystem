@@ -4,7 +4,7 @@
 \alias{run}
 \title{Run the given command the supplied arguments. Shell expansion of filenames is still performed.}
 \usage{
-run(command, args = NULL, error_on_status = TRUE, echo = TRUE, timeout = 10)
+run(command, args = NULL, error_on_status = TRUE, echo = FALSE, timeout = 10)
 }
 \arguments{
 \item{command}{Character scalar, the command to run}
