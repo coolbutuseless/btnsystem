@@ -180,8 +180,15 @@ run <- function(command, args = NULL, error_on_status = TRUE, wd = NULL,
   # Ignore any R warnings. Focus on shell errors instead
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   status <- NA_integer_
+  rinfo  <- R.Version()
   suppressWarnings({
-    status <- system2(command, args, stdout = stdout_file, stderr = stderr_file, timeout = timeout)
+
+    if (rinfo$major == '3' && rinfo$minor < '5') {
+      # 'timeout' not available in versions 3.4 and prior
+      status <- system2(command, args, stdout = stdout_file, stderr = stderr_file)
+    } else {
+      status <- system2(command, args, stdout = stdout_file, stderr = stderr_file, timeout = timeout)
+    }
   })
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
