@@ -10,6 +10,8 @@
 status](https://travis-ci.org/coolbutuseless/btnsystem.svg?branch=master)](https://travis-ci.org/coolbutuseless/btnsystem)
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/coolbutuseless/btnsystem?branch=master&svg=true)](https://ci.appveyor.com/project/coolbutuseless/btnsystem)
+[![Codecov test
+coverage](https://codecov.io/gh/coolbutuseless/btnsystem/branch/master/graph/badge.svg)](https://codecov.io/gh/coolbutuseless/btnsystem?branch=master)
 <!-- badges: end -->
 
 `btnsystem` provides a safer version of `system2()` that still allows
