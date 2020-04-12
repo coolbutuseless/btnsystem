@@ -8,6 +8,8 @@
 ![](http://img.shields.io/badge/cool-useless-green.svg)
 ![](http://img.shields.io/badge/button-verse-blue.svg) [![R build
 status](https://github.com/coolbutuseless/btnsystem/workflows/R-CMD-check/badge.svg)](https://github.com/coolbutuseless/btnsystem/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/coolbutuseless/btnsystem/branch/master/graph/badge.svg)](https://codecov.io/gh/coolbutuseless/btnsystem?branch=master)
 <!-- badges: end -->
 
 `btnsystem` provides a safer version of `system2()` that still allows
