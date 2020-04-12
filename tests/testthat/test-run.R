@@ -13,7 +13,10 @@ test_that("run works", {
   expect_true(grepl("No such file", res$stderr))
 
 
-
-  res <- run('pwd', wd = "/tmp")
-  expect_true(grepl("/tmp", res$stdout))
+  if (!grepl("w64", sessionInfo()$platform)) {
+    # Don't run this under Appveyor windows with
+    # sessionInfo()platform == x86_64-w64-mingw32
+    res <- run('pwd', wd = "/tmp")
+    expect_true(grepl("/tmp", res$stdout))
+  }
 })
